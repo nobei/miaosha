@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jwh.miaosha.Dao.GoodsMapper">
+  <resultMap id="BaseResultMap" type="com.jwh.miaosha.Data.Goods">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="goodName" jdbcType="VARCHAR" property="goodname" />
+    <result column="goodDescribe" jdbcType="VARCHAR" property="gooddescribe" />
+    <result column="goodNum" jdbcType="INTEGER" property="goodnum" />
+    <result column="goodPrice" jdbcType="DOUBLE" property="goodprice"/>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, goodName, goodDescribe, goodNum
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from goods
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from goods
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.jwh.miaosha.Data.Goods">
+    insert into goods (id, goodName, goodDescribe,
+      goodNum)
+    values (#{id,jdbcType=INTEGER}, #{goodname,jdbcType=VARCHAR}, #{gooddescribe,jdbcType=VARCHAR},
+      #{goodnum,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.jwh.miaosha.Data.Goods">
+    insert into goods
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="goodname != null">
+        goodName,
+      </if>
+      <if test="gooddescribe != null">
+        goodDescribe,
+      </if>
+      <if test="goodnum != null">
+        goodNum,
+      </if>
+      <if test="goodprice != null">
+        goodPrice,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="goodname != null">
+        #{goodname,jdbcType=VARCHAR},
+      </if>
+      <if test="gooddescribe != null">
+        #{gooddescribe,jdbcType=VARCHAR},
+      </if>
+      <if test="goodnum != null">
+        #{goodnum,jdbcType=INTEGER},
+      </if>
+      <if test="goodprice != null">
+        #{goodprice,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jwh.miaosha.Data.Goods">
+    update goods
+    <set>
+      <if test="goodname != null">
+        goodName = #{goodname,jdbcType=VARCHAR},
+      </if>
+      <if test="gooddescribe != null">
+        goodDescribe = #{gooddescribe,jdbcType=VARCHAR},
+      </if>
+      <if test="goodnum != null">
+        goodNum = #{goodnum,jdbcType=INTEGER},
+      </if>
+      <if test="goodprice != null">
+        goodNum = #{goodprice,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jwh.miaosha.Data.Goods">
+    update goods
+    set goodName = #{goodname,jdbcType=VARCHAR},
+      goodDescribe = #{gooddescribe,jdbcType=VARCHAR},
+      goodNum = #{goodnum,jdbcType=INTEGER} ,
+      goodPrice = #{goodprice,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="getAvaliableGoods" parameterType="com.jwh.miaosha.Data.Goods" resultType="com.jwh.miaosha.Data.Goods">
+    select * from goods
+  </select>
+</mapper>

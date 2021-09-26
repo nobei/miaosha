@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jwh.miaosha.Dao.OrderMapper">
+  <resultMap id="BaseResultMap" type="com.jwh.miaosha.Data.Order">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="goodId" jdbcType="INTEGER" property="goodid" />
+    <result column="userId" jdbcType="INTEGER" property="userid" />
+    <result column="BugCount" jdbcType="INTEGER" property="bugcount" />
+    <result column="BugTime" jdbcType="TIMESTAMP" property="bugtime" />
+    <result column="GoodStatus" jdbcType="INTEGER" property="status" />
+    <result column="BugPrice" jdbcType="DOUBLE" property="bugprice" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, goodId, userId, BugCount, BugTime, GoodStatus, BugPrice
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from `order`
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from `order`
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.jwh.miaosha.Data.Order">
+    insert into `order` (id, goodId, userId,
+      BugCount, BugTime, GoodStatus,
+      BugPrice)
+    values (#{id,jdbcType=INTEGER}, #{goodid,jdbcType=INTEGER}, #{userid,jdbcType=INTEGER},
+      #{bugcount,jdbcType=INTEGER}, #{bugtime,jdbcType=TIMESTAMP}, #{status,jdbcType=INTEGER},
+      #{bugprice,jdbcType=DOUBLE})
+  </insert>
+  <insert id="insertSelective" parameterType="com.jwh.miaosha.Data.Order">
+    insert into `order`
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="goodid != null">
+        goodId,
+      </if>
+      <if test="userid != null">
+        userId,
+      </if>
+      <if test="bugcount != null">
+        BugCount,
+      </if>
+      <if test="bugtime != null">
+        BugTime,
+      </if>
+      <if test="status != null">
+        GoodStatus,
+      </if>
+      <if test="bugprice != null">
+        BugPrice,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="goodid != null">
+        #{goodid,jdbcType=INTEGER},
+      </if>
+      <if test="userid != null">
+        #{userid,jdbcType=INTEGER},
+      </if>
+      <if test="bugcount != null">
+        #{bugcount,jdbcType=INTEGER},
+      </if>
+      <if test="bugtime != null">
+        #{bugtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="bugprice != null">
+        #{bugprice,jdbcType=DOUBLE},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jwh.miaosha.Data.Order">
+    update `order`
+    <set>
+      <if test="goodid != null">
+        goodId = #{goodid,jdbcType=INTEGER},
+      </if>
+      <if test="userid != null">
+        userId = #{userid,jdbcType=INTEGER},
+      </if>
+      <if test="bugcount != null">
+        BugCount = #{bugcount,jdbcType=INTEGER},
+      </if>
+      <if test="bugtime != null">
+        BugTime = #{bugtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        GoodStatus = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="bugprice != null">
+        BugPrice = #{bugprice,jdbcType=DOUBLE},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jwh.miaosha.Data.Order">
+    update `order`
+    set goodId = #{goodid,jdbcType=INTEGER},
+      userId = #{userid,jdbcType=INTEGER},
+      BugCount = #{bugcount,jdbcType=INTEGER},
+      BugTime = #{bugtime,jdbcType=TIMESTAMP},
+      GoodStatus = #{status,jdbcType=INTEGER},
+      BugPrice = #{bugprice,jdbcType=DOUBLE}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
