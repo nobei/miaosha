@@ -28,6 +28,13 @@ rabbitmq:
   topic: miaoSha
   routeKey: do_miaoSha
 
+  rocketmq:
+    topic: miaosha
+    name-server: 127.0.0.1:9876
+    producer:
+       group: producer
+
+
 mybatis:
   mapper-locations: classpath:mapper/*.xml
 
