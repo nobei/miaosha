@@ -11,5 +11,4 @@ public @interface Cacheable {
     Constant prefixKey() ;
     String Key() default "";
     long expireTime() default 60L;
-    Class className() default Object.class;
 }

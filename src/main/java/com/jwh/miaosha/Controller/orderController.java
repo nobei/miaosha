@@ -73,7 +73,7 @@ public class orderController {
                     }
                 }
                 if (user != null) {
-                    transactionWithMQ(responseBuild,user,goodId,num,goodNum);
+                    transactionWithoutMQ(responseBuild,user,goodId,num,goodNum);
                 }else{
                     responseBuild.setStatusCode(ResponseStatus.Failed).setMessage("登录失效");
                 }

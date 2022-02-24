@@ -6,5 +6,5 @@ public enum LoggerConst {
     Serialization,
     UserLogin,
     Goods,
-    UtilsError
+    UtilsError,
 }

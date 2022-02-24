@@ -1,5 +1,6 @@
 package com.jwh.miaosha.Redis;
 
+import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.jwh.miaosha.Common.Constant;
 import com.jwh.miaosha.Logger.LoggerConst;
 import com.alibaba.fastjson.JSON;
@@ -37,10 +38,6 @@ public class RedisUtils {
         redis = jPool.getResource();
     }
 
-
-
-
-
     public <T> Object get(Constant prefix, String key, Class<T> className) {
         if (redis == null) {
             redis = redisManager.getInstance();
@@ -51,7 +48,8 @@ public class RedisUtils {
         try {
             result = JSON.parseObject(object, className);
         }catch (Exception e){
-            log.info(LoggerConst.Serialization.name(),"parse Object Error");
+            log.info(LoggerConst.Serialization.name(),"parse Object Error")
+            throw new ;
         }
         return result;
     }
@@ -89,11 +87,15 @@ public class RedisUtils {
     }
 
     public boolean exit(Constant prefix,String key){
-        if (redis == null) {
+        String realKey = prefix.name()+key;
+        return exit(realKey);
+    }
+
+    public boolean exit(String key){
+        if (redis == null){
             redis = redisManager.getInstance();
         }
-        String realKey = prefix.name()+key;
-        return redis.exists(realKey);
+        return redis.exists(key);
     }
 
     public Long derc(Constant prefix,String key,int num){
