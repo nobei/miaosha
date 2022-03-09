@@ -2,6 +2,7 @@ package com.jwh.miaosha.Redis;
 
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.jwh.miaosha.Common.Constant;
+import com.jwh.miaosha.Expection.SystemException;
 import com.jwh.miaosha.Logger.LoggerConst;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -16,6 +17,8 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import javax.annotation.PostConstruct;
+
+import static com.jwh.miaosha.Expection.SysExceptionErrorCode.JSONParserException;
 
 @Component
 @Slf4j
@@ -48,8 +51,8 @@ public class RedisUtils {
         try {
             result = JSON.parseObject(object, className);
         }catch (Exception e){
-            log.info(LoggerConst.Serialization.name(),"parse Object Error")
-            throw new ;
+            log.info(LoggerConst.Serialization.name(),"parse Object Error");
+            throw new SystemException(JSONParserException,"解析异常");
         }
         return result;
     }
