@@ -13,13 +13,14 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.annotation.Annotation;
+import javax.inject.Provider;
 
 
 @Service
 public class AspectRegister extends HandlerInterceptorAdapter {
 
     @Autowired
-    RedisUtils redisUtils;
+    private Provider<RedisUtils> redisUtilsProvider;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -69,7 +70,7 @@ public class AspectRegister extends HandlerInterceptorAdapter {
         }
         for (Cookie cookie1 : cookie) {
             if (cookie1.getName().equals(Constant.User.name())) {
-                if (redisUtils.exit(Constant.User, cookie1.getValue())) {
+                if (redisUtilsProvider.get().exit(Constant.User, cookie1.getValue())) {
                     return cookie1.getValue();
                 }
 

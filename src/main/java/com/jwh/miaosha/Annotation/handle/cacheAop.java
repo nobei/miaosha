@@ -23,6 +23,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import javax.inject.Provider;
 import java.util.*;
 
 import static com.sun.org.apache.xml.internal.security.keys.keyresolver.KeyResolver.iterator;
@@ -32,7 +33,7 @@ import static com.sun.org.apache.xml.internal.security.keys.keyresolver.KeyResol
 @Slf4j
 public class cacheAop extends HandlerInterceptorAdapter {
     @Autowired
-    RedisUtils redisUtils;
+    private Provider<RedisUtils> redisUtils;
 
     @Pointcut("execution(public * *(..))")
         public void test() {
@@ -59,13 +60,13 @@ public class cacheAop extends HandlerInterceptorAdapter {
                 Collection collections = (Collection) constructor.newInstance();
                 Class realClass = returnType.getClass();
                 for (String realKey:realKeys){
-                    collections.add( redisUtils.get(prefixKey, realKey, realClass));
+                    collections.add( redisUtils.get().get(prefixKey, realKey, realClass));
                 }
                 return collections;
             }else if(!CollectionUtils.isEmpty(realKeys)
                     && realKeys.size() == 1 && !(type instanceof Map)){
                 Class realClass = Class.forName(type.getTypeName());
-                Object data = redisUtils.get(prefixKey,realKeys.get(0),realClass);
+                Object data = redisUtils.get().get(prefixKey,realKeys.get(0),realClass);
                 return data;
             }
         } else {
@@ -77,14 +78,14 @@ public class cacheAop extends HandlerInterceptorAdapter {
                 Iterator it = ((Collection) value).iterator();
                 while (it.hasNext()) {
                     Object t = it.next();
-                    redisUtils.set(expireTime, prefixKey, realKeys.get(nowIndex), Utils.JacksonUtils.transform(value));
+                    redisUtils.get().set(expireTime, prefixKey, realKeys.get(nowIndex), Utils.JacksonUtils.transform(value));
                     nowIndex++;
                 }
             }
         } else {
             if (!CollectionUtils.isEmpty(realKeys)
                     && realKeys.size() == 1 && !(value instanceof Map)) {
-                redisUtils.set(expireTime, prefixKey, realKeys.get(0), Utils.JacksonUtils.transform(value));
+                redisUtils.get().set(expireTime, prefixKey, realKeys.get(0), Utils.JacksonUtils.transform(value));
             }
         }
 
@@ -94,7 +95,7 @@ public class cacheAop extends HandlerInterceptorAdapter {
 
     public boolean isExist(Constant prefixKey , List<String> key){
         for (String keyT:key){
-            if(!redisUtils.exit(prefixKey+keyT)){
+            if(!redisUtils.get().exit(prefixKey+keyT)){
                 return false;
             }
         }

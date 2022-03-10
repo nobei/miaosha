@@ -24,7 +24,8 @@ import static com.jwh.miaosha.Expection.SysExceptionErrorCode.JSONParserExceptio
 @Component
 @Slf4j
 @DependsOn("RedisConfig")
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE,proxyMode = ScopedProxyMode.TARGET_CLASS)
+//@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE,proxyMode = ScopedProxyMode.TARGET_CLASS) // 每次调用方法都会生成新对象性能损耗严重
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class RedisUtils {
     @Autowired
     RedisManager redisManager;

@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.inject.Provider;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,7 @@ public class orderController {
     @Autowired
     TransService transService;
     @Autowired
-    RedisUtils redis;
+    Provider<RedisUtils> redis;
     @Autowired
     GoodService goodService;
     @Autowired
@@ -59,7 +60,7 @@ public class orderController {
             responseBuild.setData(null).setMessage("orderHasSelled").setStatusCode(ResponseStatus.SelledOut);
             return responseBuild.Build();
         } else {
-            int goodNum = (int) redis.get(Constant.Good, goodId + "", Integer.class);
+            int goodNum = (int) redis.get().get(Constant.Good, goodId + "", Integer.class);
             if (goodNum <= 0) {
                 mapBook.put(goodId, false);
                 responseBuild.setStatusCode(ResponseStatus.SelledOut);
@@ -69,7 +70,7 @@ public class orderController {
                 for (Cookie cookie1 : cookie) {
                     if (cookie1.getName().equals(Constant.User.name())) {
                         String token = cookie1.getValue();
-                        user = (User) redis.get(Constant.User, token, User.class);
+                        user = (User) redis.get().get(Constant.User, token, User.class);
                     }
                 }
                 if (user != null) {
@@ -101,10 +102,10 @@ public class orderController {
             Order oreder = transService.transaction(user, goodId, num);
             if(oreder != null){
                 responseBuild.setStatusCode(ResponseStatus.Success).setData(oreder);
-                redis.set(Constant.Good,""+goodId,goodNum-num);
+                redis.get().set(Constant.Good,""+goodId,goodNum-num);
             }else{
                 responseBuild.setStatusCode(ResponseStatus.Failed);
-                redis.set(Constant.Good,""+goodId,0);
+                redis.get().set(Constant.Good,""+goodId,0);
             }
         }catch(Exception e) {
             log.error(e.getMessage());
@@ -123,7 +124,7 @@ public class orderController {
             return;
         }
         for (Goods good : goodsList) {
-            redis.set(Constant.Good, "" + good.getId(), good.getGoodnum());
+            redis.get().set(Constant.Good, "" + good.getId(), good.getGoodnum());
             mapBook.put(good.getId(), true);
         }
 

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.inject.Provider;
 import java.util.Date;
 
 @Component
@@ -18,8 +19,6 @@ import java.util.Date;
 public class TransService {
     @Autowired
     GoodsMapper goodsMapper;
-    @Autowired
-    RedisUtils redisUtils;
     @Autowired
     OrderMapper orderMapper;
 
