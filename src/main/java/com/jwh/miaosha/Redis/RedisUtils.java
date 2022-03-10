@@ -1,5 +1,6 @@
 package com.jwh.miaosha.Redis;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.jwh.miaosha.Common.Constant;
 import com.jwh.miaosha.Expection.SystemException;
@@ -49,7 +50,8 @@ public class RedisUtils {
         String object = redis.get(realKey);
         T result = null;
         try {
-            result = JSON.parseObject(object, className);
+            String data = (String) JSON.parse(object);
+            result = JSON.parseObject(data, className);
         }catch (Exception e){
             log.info(LoggerConst.Serialization.name(),"parse Object Error");
             throw new SystemException(JSONParserException,"解析异常");

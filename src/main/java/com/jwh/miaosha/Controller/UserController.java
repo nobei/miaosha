@@ -31,7 +31,6 @@ public class UserController {
 
     @RequestMapping(value = "/do_login",method = RequestMethod.POST)
     @ResponseBody
-    @Cacheable(prefixKey = Constant.User)
     public ResponseModel<User> login(@RequestBody LoginModel login, HttpServletResponse response) {
         if (!validRequest(login)) {
             return new ResponseModel<>(null, ResponseStatus.Failed);

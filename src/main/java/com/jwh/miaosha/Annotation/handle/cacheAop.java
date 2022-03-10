@@ -34,27 +34,27 @@ public class cacheAop extends HandlerInterceptorAdapter {
     @Autowired
     RedisUtils redisUtils;
 
-    @Pointcut("@annotation(com.jwh.miaosha.Annotation.annotation.Cacheable)")
-    public void test() {
+    @Pointcut("execution(public * *(..))")
+        public void test() {
 
     }
 
     @Around("test()&&@annotation(cacheable)")
     public Object cacheData(ProceedingJoinPoint joinPoint, Cacheable cacheable) throws Throwable {
         Constant prefixKey = cacheable.prefixKey();
-        String key = cacheable.Key();
+        String keyDes = cacheable.Key();
         Long expireTime = cacheable.expireTime();
         Object[] args = joinPoint.getArgs();
-        List<String> realKeys = getKey(key, args);
+        List<String> realKeys = getKey(keyDes,args);
         Signature signature = joinPoint.getSignature();
         MethodSignature methodSignature = (MethodSignature) signature;
         Method method = methodSignature.getMethod();
         Type type = method.getGenericReturnType();
         Type returnType = MethodUtils.getReturnType(method);
         Object value = null;
-        if (isExist(realKeys)) {
+        if (isExist(prefixKey, realKeys)) {
             if(type instanceof Collection){
-                Class resClass = type.getClass();
+                Class resClass = Class.forName(type.getTypeName());
                 Constructor constructor = resClass.getConstructor();
                 Collection collections = (Collection) constructor.newInstance();
                 Class realClass = returnType.getClass();
@@ -64,7 +64,7 @@ public class cacheAop extends HandlerInterceptorAdapter {
                 return collections;
             }else if(!CollectionUtils.isEmpty(realKeys)
                     && realKeys.size() == 1 && !(type instanceof Map)){
-                Class realClass = type.getClass();
+                Class realClass = Class.forName(type.getTypeName());
                 Object data = redisUtils.get(prefixKey,realKeys.get(0),realClass);
                 return data;
             }
@@ -92,9 +92,9 @@ public class cacheAop extends HandlerInterceptorAdapter {
     }
 
 
-    public boolean isExist(List<String> key){
+    public boolean isExist(Constant prefixKey , List<String> key){
         for (String keyT:key){
-            if(!redisUtils.exit(keyT)){
+            if(!redisUtils.exit(prefixKey+keyT)){
                 return false;
             }
         }
@@ -105,9 +105,8 @@ public class cacheAop extends HandlerInterceptorAdapter {
 
 
     public List<String> getKey(String key, Object[] object) throws JsonProcessingException {
-        String prefixKey =  key;
         if (null == object || object.length == 0) {
-            return Arrays.asList(prefixKey);
+            return Arrays.asList("");
         }
         Object firstParam = object[0];
         if (firstParam instanceof Collection) {
@@ -117,14 +116,14 @@ public class cacheAop extends HandlerInterceptorAdapter {
             while (it.hasNext()) {
                 try {
                     String realKey = (String) it.next();
-                    res.add(prefixKey + realKey);
+                    res.add(key+realKey);
                 } catch (ClassCastException e) {
                     log.info("cache transform error: {}", e.getMessage());
                 }
             }
             return res;
         } else if (firstParam instanceof Integer) {
-            return Arrays.asList(prefixKey + "");
+            return Arrays.asList(key+firstParam+"");
         } else {
             log.info("{} can not cache classType", Utils.JacksonUtils.transform(object));
             return Arrays.asList();

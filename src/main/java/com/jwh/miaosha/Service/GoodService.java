@@ -20,7 +20,7 @@ public class GoodService {
     GoodsMapper goodsMapper;
 
 
-    @Cacheable(prefixKey = Constant.Good)
+    @Cacheable(prefixKey = Constant.Good, Key = "info")
     public Goods getGoodsById(Integer goodsId){
         Goods goods = goodsMapper.selectByPrimaryKey(goodsId);
         if (goods == null){
