@@ -2,6 +2,7 @@ package com.jwh.miaosha.Mq.product;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jwh.miaosha.Config.ApplicationCtx;
+import com.jwh.miaosha.Config.rabbitMq;
 import com.jwh.miaosha.Model.MiaoShaModel;
 import groovy.util.logging.Log;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,10 @@ import java.io.IOException;
 @Component
 @Slf4j
 public class product implements RabbitTemplate.ConfirmCallback {
+
+    @Autowired
+    rabbitMq rabbitMq;
+
     @Resource(name = "ctx")
     ApplicationContext applicationCtx;
 

@@ -22,7 +22,7 @@ public class GoodControl {
     @Autowired
     GoodService goodService;
 
-    @RequestMapping(value = "/{id}",method = RequestMethod.GET)
+    @RequestMapping(value = "/goodId/{id}",method = RequestMethod.GET)
     @ResponseBody
     public ResponseModel<Goods> getGoodsById(@PathVariable("id") Integer goodId){
         ResponseModel responseModel = new ResponseModel();

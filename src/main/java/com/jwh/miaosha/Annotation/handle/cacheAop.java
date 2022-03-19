@@ -23,6 +23,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import javax.inject.Provider;
 import java.util.*;
 
 import static com.sun.org.apache.xml.internal.security.keys.keyresolver.KeyResolver.iterator;
@@ -32,40 +33,40 @@ import static com.sun.org.apache.xml.internal.security.keys.keyresolver.KeyResol
 @Slf4j
 public class cacheAop extends HandlerInterceptorAdapter {
     @Autowired
-    RedisUtils redisUtils;
+    private Provider<RedisUtils> redisUtils;
 
-    @Pointcut("@annotation(com.jwh.miaosha.Annotation.annotation.Cacheable)")
-    public void test() {
+    @Pointcut("execution(public * *(..))")
+        public void test() {
 
     }
 
     @Around("test()&&@annotation(cacheable)")
     public Object cacheData(ProceedingJoinPoint joinPoint, Cacheable cacheable) throws Throwable {
         Constant prefixKey = cacheable.prefixKey();
-        String key = cacheable.Key();
+        String keyDes = cacheable.Key();
         Long expireTime = cacheable.expireTime();
         Object[] args = joinPoint.getArgs();
-        List<String> realKeys = getKey(key, args);
+        List<String> realKeys = getKey(keyDes,args);
         Signature signature = joinPoint.getSignature();
         MethodSignature methodSignature = (MethodSignature) signature;
         Method method = methodSignature.getMethod();
         Type type = method.getGenericReturnType();
         Type returnType = MethodUtils.getReturnType(method);
         Object value = null;
-        if (isExist(realKeys)) {
+        if (isExist(prefixKey, realKeys)) {
             if(type instanceof Collection){
-                Class resClass = type.getClass();
+                Class resClass = Class.forName(type.getTypeName());
                 Constructor constructor = resClass.getConstructor();
                 Collection collections = (Collection) constructor.newInstance();
                 Class realClass = returnType.getClass();
                 for (String realKey:realKeys){
-                    collections.add( redisUtils.get(prefixKey, realKey, realClass));
+                    collections.add( redisUtils.get().get(prefixKey, realKey, realClass));
                 }
                 return collections;
             }else if(!CollectionUtils.isEmpty(realKeys)
                     && realKeys.size() == 1 && !(type instanceof Map)){
-                Class realClass = type.getClass();
-                Object data = redisUtils.get(prefixKey,realKeys.get(0),realClass);
+                Class realClass = Class.forName(type.getTypeName());
+                Object data = redisUtils.get().get(prefixKey,realKeys.get(0),realClass);
                 return data;
             }
         } else {
@@ -77,14 +78,14 @@ public class cacheAop extends HandlerInterceptorAdapter {
                 Iterator it = ((Collection) value).iterator();
                 while (it.hasNext()) {
                     Object t = it.next();
-                    redisUtils.set(expireTime, prefixKey, realKeys.get(nowIndex), Utils.JacksonUtils.transform(value));
+                    redisUtils.get().set(expireTime, prefixKey, realKeys.get(nowIndex), Utils.JacksonUtils.transform(value));
                     nowIndex++;
                 }
             }
         } else {
             if (!CollectionUtils.isEmpty(realKeys)
                     && realKeys.size() == 1 && !(value instanceof Map)) {
-                redisUtils.set(expireTime, prefixKey, realKeys.get(0), Utils.JacksonUtils.transform(value));
+                redisUtils.get().set(expireTime, prefixKey, realKeys.get(0), Utils.JacksonUtils.transform(value));
             }
         }
 
@@ -92,9 +93,9 @@ public class cacheAop extends HandlerInterceptorAdapter {
     }
 
 
-    public boolean isExist(List<String> key){
+    public boolean isExist(Constant prefixKey , List<String> key){
         for (String keyT:key){
-            if(!redisUtils.exit(keyT)){
+            if(!redisUtils.get().exit(prefixKey+keyT)){
                 return false;
             }
         }
@@ -105,9 +106,8 @@ public class cacheAop extends HandlerInterceptorAdapter {
 
 
     public List<String> getKey(String key, Object[] object) throws JsonProcessingException {
-        String prefixKey =  key;
         if (null == object || object.length == 0) {
-            return Arrays.asList(prefixKey);
+            return Arrays.asList("");
         }
         Object firstParam = object[0];
         if (firstParam instanceof Collection) {
@@ -117,14 +117,14 @@ public class cacheAop extends HandlerInterceptorAdapter {
             while (it.hasNext()) {
                 try {
                     String realKey = (String) it.next();
-                    res.add(prefixKey + realKey);
+                    res.add(key+realKey);
                 } catch (ClassCastException e) {
                     log.info("cache transform error: {}", e.getMessage());
                 }
             }
             return res;
         } else if (firstParam instanceof Integer) {
-            return Arrays.asList(prefixKey + "");
+            return Arrays.asList(key+firstParam+"");
         } else {
             log.info("{} can not cache classType", Utils.JacksonUtils.transform(object));
             return Arrays.asList();

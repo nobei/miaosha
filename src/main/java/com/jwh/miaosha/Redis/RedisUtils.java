@@ -1,7 +1,9 @@
 package com.jwh.miaosha.Redis;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.jwh.miaosha.Common.Constant;
+import com.jwh.miaosha.Expection.SystemException;
 import com.jwh.miaosha.Logger.LoggerConst;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -17,10 +19,13 @@ import redis.clients.jedis.JedisPool;
 
 import javax.annotation.PostConstruct;
 
+import static com.jwh.miaosha.Expection.SysExceptionErrorCode.JSONParserException;
+
 @Component
 @Slf4j
 @DependsOn("RedisConfig")
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE,proxyMode = ScopedProxyMode.TARGET_CLASS)
+//@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE,proxyMode = ScopedProxyMode.TARGET_CLASS) // 每次调用方法都会生成新对象
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class RedisUtils {
     @Autowired
     RedisManager redisManager;
@@ -46,10 +51,11 @@ public class RedisUtils {
         String object = redis.get(realKey);
         T result = null;
         try {
-            result = JSON.parseObject(object, className);
+            String data = (String) JSON.parse(object);
+            result = JSON.parseObject(data, className);
         }catch (Exception e){
-            log.info(LoggerConst.Serialization.name(),"parse Object Error")
-            throw new ;
+            log.info(LoggerConst.Serialization.name(),"parse Object Error");
+            throw new SystemException(JSONParserException,"解析异常");
         }
         return result;
     }

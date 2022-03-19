@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Provider;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
@@ -23,7 +24,7 @@ public class UserService {
     @Autowired
     UserMapper userMapper;
     @Autowired
-    RedisUtils redisUtils;
+    Provider<RedisUtils> redisUtils;
 
     final static String expireTime = "86400000";
 
@@ -65,7 +66,7 @@ public class UserService {
         }
         Token token = createToken(expireTime);
         Cookie cookie = CookieUtils.setCookie(Constant.User,token.getToken(),Integer.valueOf(expireTime));
-        redisUtils.set(Long.valueOf(token.getExpireTime()),Constant.User,token.getToken(),user);
+        redisUtils.get().set(Long.valueOf(token.getExpireTime()),Constant.User,token.getToken(),user);
         response.addCookie(cookie);
         log.info(LoggerConst.UserLogin.name(),user.getUsermobile()+user.getUsername()+"login in success");
         return user;
